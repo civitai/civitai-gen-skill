@@ -1,9 +1,9 @@
 ---
 name: civitai-gen
-description: Generate images, videos, audio, and more using Civitai's orchestration API. Use when the user wants text-to-image, video generation (11+ engines), text-to-speech, music, transcription, bulk batches, experiment sweeps, or buzz cost estimation. Not for browsing or searching Civitai models (see civitai-browse).
+description: Generate images, videos, audio, and more using Civitai's orchestration API. Use when the user wants text-to-image, video generation (11+ engines), text-to-speech, music, transcription, bulk batches, experiment sweeps, or buzz cost estimation. Not for browsing or searching Civitai models (use the Civitai MCP server).
 license: MIT
 compatibility: Requires Node.js 18+ (native fetch) and a CIVITAI_API_KEY. Network access required. ffmpeg optional (audio post-processing only).
-metadata: { "author": "Civitai", "version": "1.0.0", "homepage": "https://github.com/civitai/civitai-gen-skill" }
+metadata: { "author": "Civitai", "version": "1.0.1", "homepage": "https://github.com/civitai/civitai-gen-skill" }
 ---
 
 # civitai-gen
@@ -65,15 +65,19 @@ Read [`docs/engines.md`](docs/engines.md) to pick the right generator. The key s
 
 | Path | Engines | How to pick the model |
 |------|---------|----------------------|
-| **Open-weight ecosystem** | SD1, SDXL, Pony, Illustrious, Flux.1/2, Qwen, Z-Image, Chroma, Anima | Find a **checkpoint AIR** + compatible LoRAs via the `civitai-browse` skill → `--model` / `--resources` |
+| **Open-weight ecosystem** | SD1, SDXL, Pony, Illustrious, Flux.1/2, Qwen, Z-Image, Chroma, Anima | Find a **checkpoint AIR** + compatible LoRAs via the **Civitai MCP** (`search_models` / `get_model_version`) → `--model` / `--resources` |
 | **Closed API engine** | OpenAI, Google/Gemini, Seedream, Grok, MAI, ERNIE + all video/audio | Engine name only — no checkpoint search, no LoRA |
 
-**Model discovery is owned by `civitai-browse`** — use it to search checkpoints/LoRAs and get AIR URNs. Don't search inside this skill. A LoRA's base model must match the checkpoint's ecosystem.
+**Model discovery uses the Civitai MCP server** (hosted at `https://mcp.civitai.com/mcp`) — call its tools to search checkpoints/LoRAs and get AIR URNs. Don't search inside this skill. A LoRA's base model must match the checkpoint's ecosystem.
 
-```bash
-# civitai-browse is a sibling skill — BROWSE points at its browse.mjs (path depends on your runtime's skills dir)
-node "$BROWSE" search models "anime portrait" --type Checkpoint --generation --base-model "SDXL 1.0"
-node "$BROWSE" search models "neon style" --type LORA --base-model "SDXL 1.0"
+If the Civitai MCP isn't connected, add it (browse tools need no API key):
+`claude mcp add --transport http civitai https://mcp.civitai.com/mcp`
+
+```text
+# Call these Civitai MCP tools directly (they return AIR URNs ready for --model / --resources):
+search_models     { query: "anime portrait", type: "Checkpoint", supportsGeneration: true, baseModel: "SDXL 1.0" }
+search_models     { query: "neon style", type: "LORA", baseModel: "SDXL 1.0" }   # LoRA base MUST match checkpoint
+get_model_version { ids: [<versionId>] }   # full version details + AIR URN + trigger words
 ```
 
 Engine availability/params drift — run `node generate.mjs engines` for the live list and see <https://developer.civitai.com/orchestration/recipes> for per-engine parameters.

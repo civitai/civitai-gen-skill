@@ -22,22 +22,22 @@ Image generation splits into two paths. Getting this wrong is the #1 mistake.
 
 ### Picking checkpoints & LoRAs (open-weight path)
 
-**Use the `civitai-browse` skill** — it owns model discovery. Do not search inside civitai-gen.
+**Use the Civitai MCP server** — it owns model discovery. Do not search inside civitai-gen. If it's not connected: `claude mcp add --transport http civitai https://mcp.civitai.com/mcp` (browse tools need no API key).
 
-```bash
-# BROWSE = path to the sibling civitai-browse skill's browse.mjs (varies by runtime's skills dir)
-node "$BROWSE" search models "anime portrait" --type Checkpoint --generation --base-model "SDXL 1.0"
-node "$BROWSE" search models "neon style" --type LORA --base-model "SDXL 1.0"   # MUST match checkpoint base
-node "$BROWSE" get version <id>   # AIR URN + trigger words
+```text
+# Call these Civitai MCP tools (hosted at https://mcp.civitai.com/mcp):
+search_models     { query: "anime portrait", type: "Checkpoint", supportsGeneration: true, baseModel: "SDXL 1.0" }
+search_models     { query: "neon style", type: "LORA", baseModel: "SDXL 1.0" }   # MUST match checkpoint base
+get_model_version { ids: [<versionId>] }   # AIR URN + trigger words
 ```
 
-**Compatibility rule:** a LoRA's base model must match the checkpoint's ecosystem. SDXL LoRA ≠ Flux checkpoint. See civitai-browse SKILL.md for the full compatibility table.
+**Compatibility rule:** a LoRA's base model must match the checkpoint's ecosystem. SDXL LoRA ≠ Flux checkpoint.
 
 ---
 
 ## Image — which engine, and why
 
-### Open-weight (checkpoint + LoRA via civitai-browse)
+### Open-weight (checkpoint + LoRA via the Civitai MCP)
 
 | Ecosystem | Prefer for | Notes |
 |-----------|-----------|-------|

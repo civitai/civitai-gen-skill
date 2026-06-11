@@ -109,11 +109,11 @@ Civitai now ships official developer docs — prefer these over reverse-engineer
 - **LLM index:** <https://developer.civitai.com/llms.txt> (all pages, link list)
 - **Recipes** (per-engine parameters, kept in sync with the live API): <https://developer.civitai.com/orchestration/recipes>
 - **Official MCP server:** <https://developer.civitai.com/orchestration/mcp> — an alternative to this CLI for MCP-capable hosts. This skill remains the CLI path for agents.
-- **Site API** (browse models/images): <https://developer.civitai.com/site> — used by the sibling `civitai-browse` skill.
+- **Site API** (browse models/images): <https://developer.civitai.com/site> — wrapped by the **Civitai MCP server** (`https://mcp.civitai.com/mcp`).
 
 > "Recipes" ≠ workflow job types. A recipe is a per-model parameter guide; a job type is a `$type` workflow step (see table below). One job type (e.g. `videoGen`) covers many recipes (wan, kling, veo3, …).
 
-Model/checkpoint/LoRA discovery is **delegated to the `civitai-browse` skill** — do not duplicate search here.
+Model/checkpoint/LoRA discovery is **delegated to the Civitai MCP server** (`search_models` / `get_model` / `get_model_version` at `https://mcp.civitai.com/mcp`) — do not duplicate search here.
 
 ## Orchestrator API
 

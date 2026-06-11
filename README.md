@@ -7,7 +7,7 @@ An [agent skill](https://agentskills.io) that generates images, videos, audio, a
 
 Works with any skills-compatible agent runtime (Claude Code, [OpenClaw](https://openclaw.ai), Cursor, Codex, and others). It's a self-contained Node.js CLI with **zero npm dependencies**.
 
-Companion skills: [`civitai-browse`](https://github.com/civitai/civitai-browse-skill) (find models / AIR URNs) and [`civitai-user`](https://github.com/civitai/civitai-user-skill) (signed-in write actions). This one is for **generation**.
+Companion: the [Civitai MCP server](https://mcp.civitai.com) (`https://mcp.civitai.com/mcp`) covers model discovery (`search_models` / AIR URNs) and signed-in write actions (posts, comments, articles, and more). This one is for **generation**.
 
 ## What it does
 
