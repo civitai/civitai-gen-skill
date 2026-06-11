@@ -1,0 +1,52 @@
+name: Release on version bump
+
+# Single source of truth for the version is the `metadata.version` field in
+# civitai-gen/SKILL.md frontmatter. Bump it in a normal commit; on push to main
+# this workflow creates the matching `v<version>` git tag + GitHub release.
+# Idempotent: if the tag already exists it no-ops, so re-runs and version-less
+# edits to SKILL.md are harmless.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'civitai-gen/SKILL.md'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from SKILL.md frontmatter
+        id: ver
+        run: |
+          version=$(grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' civitai-gen/SKILL.md | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          if [ -z "$version" ]; then
+            echo "::error::No semver version found in civitai-gen/SKILL.md frontmatter metadata"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $version"
+
+      - name: Create tag + release if new
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${{ steps.ver.outputs.version }}"
+          tag="v$version"
+          if git ls-remote --tags origin "refs/tags/$tag" | grep -q "refs/tags/$tag$"; then
+            echo "Tag $tag already exists — nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "civitai-gen $tag"
+          git push origin "$tag"
+          gh release create "$tag" --title "$tag" --generate-notes
