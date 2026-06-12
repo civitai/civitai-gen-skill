@@ -3,7 +3,7 @@ name: civitai-gen
 description: Generate images, videos, audio, and more using Civitai's orchestration API. Use when the user wants text-to-image, video generation (11+ engines), text-to-speech, music, transcription, bulk batches, experiment sweeps, or buzz cost estimation. Not for browsing or searching Civitai models (use the Civitai MCP server).
 license: MIT
 compatibility: Requires Node.js 18+ (native fetch) and a CIVITAI_API_KEY. Network access required. ffmpeg optional (audio post-processing only).
-metadata: { "author": "Civitai", "version": "1.0.4", "homepage": "https://github.com/civitai/civitai-gen-skill" }
+metadata: { "author": "Civitai", "version": "1.0.5", "homepage": "https://github.com/civitai/civitai-gen-skill" }
 ---
 
 # civitai-gen
@@ -69,7 +69,9 @@ node mcp-cli.mjs post-image ./out/step_0-0.png --title "My apple"
 # -> Post published. URL: https://civitai.com/posts/<id>
 ```
 
-`post-image` reads the local file, uploads it, and publishes the post — it prints the public URL. Pull `mcp-cli.mjs` first if you don't have it (`curl -fsSL https://mcp.civitai.com/cli -o mcp-cli.mjs`); `CIVITAI_API_KEY` is required. Details + flags: [`docs/posting.md`](docs/posting.md).
+`post-image` reads the local file, uploads it, and publishes the post — it prints the public URL. Pull `mcp-cli.mjs` first if you don't have it (`curl -fsSL https://mcp.civitai.com/cli -o mcp-cli.mjs`); `CIVITAI_API_KEY` is required.
+
+Flags: `--title` (defaults to the filename), `--detail`, `--nsfw <level>`, `--draft` (leave unpublished), `--json`. For video/audio, or to attach a pre-uploaded image by UUID, call `create_post` directly (`node mcp-cli.mjs schema create_post`) — and prefer posting the local file over the generate output's `remoteUrls[].url`, which is a short-lived signed URL that expires quickly.
 
 ## Choosing an Engine & Model
 
@@ -108,7 +110,6 @@ For detailed parameters, read the relevant doc:
 - **Music**: Read [`docs/music.md`](docs/music.md) — ACE Step 1.5, lyrics, duration.
 - **Transcription**: Read [`docs/transcription.md`](docs/transcription.md) — ASR, timestamps, language hints.
 - **Experiments**: Read `experiment.mjs --help` — wildcards, parameter sweeps, naming.
-- **Posting**: Read [`docs/posting.md`](docs/posting.md) — publish a generated image as a Civitai post in one command with `node mcp-cli.mjs post-image <local png path>`.
 
 ## Workflow Lifecycle
 
