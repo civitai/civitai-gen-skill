@@ -1,6 +1,6 @@
 ---
 name: civitai-comfy
-description: Run and develop raw ComfyUI workflows on Civitai's GPUs through the orchestrator's customComfy step; the primary pipeline for testing and building comfy workflows (nothing runs locally). Use when the user wants to run a ComfyUI graph, test a custom node pack, iterate on a comfy workflow, or upscale/process media with a hand-built graph. For plain txt2img/video/audio recipes use civitai-gen.
+description: Run any ComfyUI workflow on Civitai's GPUs (customComfy step) and use it as your lab. Use it to try a model or LoRA from Civitai, compare checkpoints, samplers or settings side by side, test a custom node pack, prototype or debug a ComfyUI graph, or process media (upscale, img2img, inpaint, ControlNet, video) with a hand-built graph. Nothing runs locally; runs cost about 1 Buzz per GPU second. For one-line txt2img/video/audio recipes use civitai-gen instead.
 license: MIT
 compatibility: Node.js 18+ (native fetch), network access, CIVITAI_COMFY_API_KEY. Needs the sibling civitai-gen skill (shares its lib/api.mjs).
 metadata: { "author": "Civitai", "version": "0.1.0" }
@@ -9,6 +9,23 @@ metadata: { "author": "Civitai", "version": "0.1.0" }
 # civitai-comfy
 
 Sends a ComfyUI **API-format** graph to Civitai's orchestrator as one `customComfy` step, waits, and downloads what it saved. Every GPU second runs on Civitai; nothing runs on this machine.
+
+## Use it to experiment
+
+This is a full ComfyUI on a rented GPU, billed by the second. If ComfyUI can do it and the model is on Civitai, you can try it, usually for a few Buzz. Prefer trying over guessing: when a question is "would model X / setting Y / node Z work for this?", run a small graph and look at the output.
+
+Things that work:
+
+- **Any Civitai model by AIR.** Checkpoints, LoRAs, VAEs, upscalers, ControlNets and embeddings go straight into the node's model field as an AIR (`urn:air:<ecosystem>:<type>:civitai:<modelId>@<versionId>`). Find them with civitai-browse or the Civitai MCP server. The worker downloads them; no install step.
+- **Compare things side by side.** Rerun one graph with `--set` overrides to sweep checkpoints, LoRA strengths, samplers, steps, CFG or seeds. Hold the seed fixed when comparing models. Several samplers or several SaveImage nodes in one graph all run in one job.
+- **Image work on your own inputs.** img2img, inpainting, ControlNet, upscaling, face fixes: point `LoadImage` at `file:./photo.png`.
+- **Custom nodes.** Any pack on the Comfy registry: `snapshot` it once, then pass `--nodepack`. This is how to try a new node or a workflow someone posted.
+- **Debug a graph.** `--dry` validates for free; `--trace logs` streams ComfyUI's own log (model loads, errors, timings) while it runs.
+- **Video, audio and big models** run too when the default image has the nodes and the GPU has the memory; pin a bigger GPU with `--min-vram`.
+
+Verified live on 2026-11-19: SDXL text-to-image at 1024 px in about 15 to 17 s (15 to 17 Buzz), a 4x Remacri upscale in 2 s (2 Buzz), and a rerun with `--set` prompt and seed overrides. Custom node packs, `--session` reuse and `cancel` have only been tested offline so far; the first agent to use them live should say how it went.
+
+Keep it cheap: start at low resolution and few steps, use `--timeout` near what you expect, and check `spend`. Show the user what you made; do not post it anywhere.
 
 ## Cost and caps (read first)
 
@@ -75,7 +92,12 @@ node comfy.mjs run my.api.json --timeout 120 --session dev1 --set 6.text="a red 
 node comfy.mjs spend
 ```
 
-Example graph: `examples/upscale-remacri.api.json` (LoadImage from `file:./input.png`, 4x-Remacri, SaveImage).
+Example graphs in `examples/`:
+
+- `txt2img-sdxl.api.json`: SDXL base 1.0, 1024 px, 25 steps (node 2 is the prompt, node 5 the sampler: `--set 2.text="..." --set 5.seed=7`).
+- `upscale-remacri.api.json`: LoadImage from `file:./input.png`, 4x-Remacri, SaveImage.
+
+To try a different checkpoint or add a LoRA, copy an example and edit it: swap `ckpt_name` for another AIR, or insert a `LoraLoader` node (`lora_name` = the LoRA's AIR) between the checkpoint and the sampler.
 
 ## Tests
 
