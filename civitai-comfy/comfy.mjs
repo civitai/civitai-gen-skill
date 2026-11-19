@@ -41,7 +41,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function parseArgs(argv) {
   const pos = [], o = { resource: [], set: [], nodepack: [], tag: [] };
   const multi = new Set(['resource', 'set', 'nodepack', 'tag']);
-  const flags = new Set(['dry', 'over-cap', 'no-wait', 'sage', 'json', 'help', 'follow']);
+  const flags = new Set(['dry', 'over-cap', 'no-wait', 'sage', 'json', 'help', 'follow', 'raw']);
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') { o.out = argv[++i]; continue; }
@@ -94,7 +94,7 @@ async function downloadBlobs(wf, dir) {
   const files = [];
   for (const b of outputBlobs(wf)) {
     if (!b.url) { log('blob ' + b.id + ' has no url (available=' + b.available + (b.blockedReason ? ', blocked: ' + b.blockedReason : '') + ')'); continue; }
-    const ext = extname(new URL(b.url).pathname) || '.' + (b.type || 'bin');
+    const ext = extname(b.id) ? '' : (extname(new URL(b.url).pathname) || '.' + (b.type || 'bin'));
     const dest = join(dir, b.id + ext);
     await downloadFile(b.url, dest);
     files.push(dest);
@@ -145,7 +145,8 @@ async function cmdRun(pos, o) {
   for (const l of locals) {
     const blob = await uploadBlob(key, l.path);
     log('uploaded ' + l.path + ' -> ' + blob.id);
-    uploads.push({ ...l, value: blob.url });
+    // The worker mounts declared resources and rewrites their AIRs to file paths; a URL in LoadImage is rejected by ComfyUI.
+    uploads.push({ ...l, value: 'urn:air:other:other:orchestrator:blob@' + blob.id });
   }
   const body = buildCustomComfyWorkflow({ ...body0, graph: withInputs(graph, uploads) });
   const sub = await apiSubmitWorkflow(key, body);
@@ -189,6 +190,7 @@ async function cmdStatus(pos, o) {
   const key = loadKey();
   const wf = o.follow ? await follow(key, id, { tail: true }) : await apiGetWorkflow(key, id);
   const st = wf.steps?.[0];
+  if (o.raw) { const c = structuredClone(wf); for (const s of c.steps || []) if (s.input) s.input.workflow = '<graph omitted>'; out(c); return; }
   out({ id: wf.id, status: wf.status, step: st?.status, usage: st?.output?.usage ?? null, blobs: outputBlobs(wf).length, traceUrl: st?.output?.traceUrl ?? null });
 }
 

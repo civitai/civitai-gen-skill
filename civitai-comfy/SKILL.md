@@ -56,9 +56,14 @@ The skill uses its **own** key, `CIVITAI_COMFY_API_KEY`, not the shared civitai-
 
 - **API format only.** In ComfyUI use *Export (API)*. The editor's saved format (`nodes` + `links`) is refused with a hint.
 - **Models are AIRs** in the node's model field, e.g. `"model_name": "urn:air:other:upscaler:civitai:147759@164821"`, `"ckpt_name": "urn:air:sdxl:checkpoint:civitai:257749@290640"`. The worker downloads them. Every AIR found in node inputs is added to `resources` automatically.
-- **Local inputs:** write `"image": "file:./photo.png"` (path relative to where you run the command). The file is uploaded as a blob and replaced with its URL. Supported: png, jpg, webp, mp4, mp3, wav, ogg, flac.
+- **Local inputs:** write `"image": "file:./photo.png"` (path relative to where you run the command). The file is uploaded as a blob, replaced with its blob AIR (`urn:air:other:other:orchestrator:blob@<id>`) and declared as a resource; the worker mounts it and hands ComfyUI a file path. A plain URL in `LoadImage` fails: ComfyUI answers 400. Supported: png, jpg, webp, mp4, mp3, wav, ogg, flac.
 - **Custom nodes:** `snapshot` the pack (once per pack and image), then pass `--nodepack` with the same AIR. Bare nodepack AIRs in resources are refused by the server.
 - Outputs are whatever the graph's save nodes write.
+
+## What failures look like (seen live, 2026-11-19)
+
+- **Graph rejected by ComfyUI** (bad input value, missing node): fails in seconds; the trace shows `[error] ... 400 (Bad Request)`. The few seconds of runtime are charged (3 Buzz in the test).
+- **A model AIR that does not exist:** the step sits in `preparing` until `--timeout`, then ends `expired` with 0 Buzz. Check AIRs with `airs` before a long timeout.
 
 ## Dev loop
 

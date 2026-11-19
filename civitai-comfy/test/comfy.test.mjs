@@ -122,8 +122,8 @@ test('CLI run: uploads the local file, submits customComfy, downloads, records s
   const step = submit.body.steps[0];
   assert.equal(step.$type, 'customComfy');
   assert.equal(step.timeout, '00:02:00');
-  assert.equal(step.input.workflow['1'].inputs.image, 'https://blobs.fake/blob-in.png', 'file: input replaced by the blob url');
-  assert.deepEqual(step.input.resources, [REMACRI]);
+  assert.equal(step.input.workflow['1'].inputs.image, 'urn:air:other:other:orchestrator:blob@blob-in', 'file: input replaced by its blob AIR');
+  assert.deepEqual([...step.input.resources].sort(), ['urn:air:other:other:orchestrator:blob@blob-in', REMACRI], 'blob AIR declared as a resource');
   assert.ok(r.reqs.some((q) => q.url.endsWith('/v2/consumer/blobs')));
   const spend = JSON.parse(cli(root, ['spend']).stdout);
   assert.equal(spend.spent, 43);
