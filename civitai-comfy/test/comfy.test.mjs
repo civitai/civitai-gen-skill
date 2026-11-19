@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'child_process';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, cpSync, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import {
   scanAirs, assertApiGraph, findLocalFiles, withInputs, parseSet, toTimeSpan, buildCustomComfyWorkflow,
   buildSnapshotWorkflow, resolveNodepacks, layerKey, spentOn, checkCaps, settledBuzz,
@@ -103,7 +103,7 @@ function sandbox() {
   return root;
 }
 function cli(root, args, env = {}) {
-  const r = spawnSync(process.execPath, ['--import', join(root, 'civitai-comfy/test/fake-orchestrator.mjs'), join(root, 'civitai-comfy/comfy.mjs'), ...args], {
+  const r = spawnSync(process.execPath, ['--import', pathToFileURL(join(root, 'civitai-comfy/test/fake-orchestrator.mjs')).href, join(root, 'civitai-comfy/comfy.mjs'), ...args], {
     cwd: root, encoding: 'utf-8', env: { PATH: process.env.PATH, CIVITAI_COMFY_API_KEY: 'fake-key', FAKE_LOG: join(root, 'requests.jsonl'), ...env },
   });
   const reqs = existsSync(join(root, 'requests.jsonl')) ? readFileSync(join(root, 'requests.jsonl'), 'utf-8').trim().split('\n').filter(Boolean).map(JSON.parse) : [];
