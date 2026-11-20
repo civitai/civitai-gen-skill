@@ -39,7 +39,7 @@ Keep it cheap: start at low resolution and few steps, use `--timeout` near what 
 
 ## Key
 
-The skill uses its **own** key, `CIVITAI_COMFY_API_KEY`, not the shared civitai-gen key, so the spend is only this skill's. It is read from the environment, or from `.env` in this directory. Do not open or print `.env`. To store a key: `node comfy.mjs key < file-with-key`. On hub seats, run through the vault: `node ~/.claude/hub-channel/hub-secret.mjs run CIVITAI_COMFY_API_KEY -- node comfy.mjs <command> ...`.
+The skill uses its **own** key, `CIVITAI_COMFY_API_KEY`, not the shared civitai-gen key, so the spend is only this skill's. It is read from the environment, or from `.env` in this directory. Do not open or print `.env`. To store a key: `node comfy.mjs key < file-with-key`. On hub seats, run through the vault: `node ~/.claude/hub-channel/hub-secret.mjs run CIVITAI_COMFY_API_KEY -- node comfy.mjs <command> ...`. A seat outside the key holder's lineage (e.g. on the desk) gets a grant card for Justin on its first `run`, where he picks 24h or standing access; do not copy the key to other agents.
 
 ## Commands
 
