@@ -77,6 +77,10 @@ node generate.mjs engines                                                # live 
 
 See [`civitai-gen/SKILL.md`](civitai-gen/SKILL.md) for the full command table and [`civitai-gen/docs/engines.md`](civitai-gen/docs/engines.md) for engine/model selection guidance.
 
+## civitai-comfy (companion skill)
+
+[`civitai-comfy/`](civitai-comfy/SKILL.md) runs any ComfyUI workflow (API format) on Civitai's GPUs through the orchestrator's `customComfy` step: any Civitai model by AIR, your own input images, custom node packs, live ComfyUI logs. Billed at about 1 Buzz per GPU second, with per-run and daily caps. Install it **next to** `civitai-gen` in the same skills directory (it imports `../civitai-gen/lib/api.mjs`), and give it its own key as `CIVITAI_COMFY_API_KEY`.
+
 ## Supported runtimes
 
 Distributed in the [AgentSkills](https://agentskills.io) format (`SKILL.md` + scripts), installable via [`skills.sh`](https://skills.sh). The CLI itself is runtime-agnostic — it only needs Node.js — so any runtime that loads agent skills can use it. Tested with Claude Code and OpenClaw.
