@@ -45,22 +45,23 @@ export function buildTTSStep(job, stepIndex) {
 }
 
 // ---------------------------------------------------------------------------
-// Music — ACE Step 1.5 audio generation
+// Music — YuE2 sung songs. Always YuE2, never ACE Step: YuE2's songs are far better.
 // ---------------------------------------------------------------------------
 
 export function buildMusicStep(job, stepIndex) {
   if (!job.prompt) throw new Error('Music generation requires --prompt');
 
+  // YuE2 wants lyrics with [verse]/[chorus]/[outro] headers, one sung line per line; [instrumental] for no vocals.
   const input = {
-    prompt: job.prompt,
+    style: job.prompt,
+    lyrics: job.lyrics || '[instrumental]',
+    seed: job.seed ?? Math.floor(Math.random() * 2 ** 31),
+    maxDuration: Math.min(120, Math.max(10, Number(job.duration ?? 90))),
+    mode: 'full',
   };
 
-  if (job.lyrics) input.lyrics = job.lyrics;
-  if (job.duration != null) input.duration = job.duration;
-  if (job.model) input.model = job.model;
-
   return {
-    $type: 'aceStepAudio',
+    $type: 'yuE2',
     name: job.name || `step_${stepIndex}`,
     metadata: {
       stepIndex,

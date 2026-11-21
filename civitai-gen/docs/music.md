@@ -1,38 +1,35 @@
-# Music Generation (ACE Step 1.5)
+# Music Generation (YuE2)
 
-Generate full songs and music from text descriptions and structured lyrics.
+**Always YuE2 for music, never ACE Step.** YuE2's songs are far better. `music` builds a `yuE2` step.
+For a launch music video, use the walkthrough-video skill's `scripts/song.mjs` (several takes, one per style) instead;
+this command is for a single quick song.
 
 ## Quick Start
 
 ```bash
-# Simple music from text description
-node generate.mjs music --prompt "upbeat electronic dance track with synths" -o ./out
+# A sung song: style in --prompt, lyrics with section headers
+node generate.mjs music --prompt "anthemic electro rock, punchy drums, confident female vocal" \
+  --lyrics "[chorus]
+Four rounds, one crown
+Bring your best and take it down" --duration 30 -o ./out
 
-# With structured lyrics
-node generate.mjs music --prompt "acoustic folk ballad" \
-  --lyrics "[verse] Walking through the morning light..." \
-  --duration 30 -o ./out
-
-# With specific model
-node generate.mjs music --prompt "lo-fi hip hop beat" \
-  --model "urn:air:..." --duration 60 -o ./out
+# Instrumental: leave out --lyrics (sends [instrumental])
+node generate.mjs music --prompt "lo-fi hip hop beat, warm keys" --duration 60 -o ./out
 ```
 
 ## Parameters
 
 | Flag | Required | Description |
 |------|----------|-------------|
-| `--prompt <text>` | yes | Text description of the music to generate |
-| `--lyrics <text>` | no | Structured lyrics for the song (use `[verse]`, `[chorus]` tags) |
-| `--duration <sec>` | no | Duration in seconds |
-| `--model <air>` | no | Model identifier in AIR format |
+| `--prompt <text>` | yes | Style: genre, instruments, tempo, mood, vocal |
+| `--lyrics <text>` | no | `[verse]` / `[chorus]` / `[outro]` headers, one sung line per line, blank line between sections. Omitted = `[instrumental]` |
+| `--duration <sec>` | no | Max length, 10-120 (default 90). Takes can end early; ask ~8s longer than you need |
 
 ## Output
 
-Music outputs a single `.mp3` file per step. The JSON summary includes an `audio` array with paths.
+One `.mp3` per step, downloaded to `-o`. Measured 11/21/2026: a 30s ask cost 13 Buzz, took ~30s, and returned 23s.
 
-## Notes
+## Word times for karaoke
 
-- Use descriptive prompts: genre, instruments, tempo, mood
-- Structured lyrics use tags like `[verse]`, `[chorus]`, `[bridge]` to guide song structure
-- Duration controls the length of the generated audio
+`transcribe --timestamps` returned no word segments on sung audio (11/21/2026). Use the walkthrough-video skill's
+`scripts/words.py` (faster-whisper word timestamps) instead.

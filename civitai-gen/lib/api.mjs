@@ -293,10 +293,10 @@ export function collectDownloads(workflow, manifest, opts = {}) {
     }
 
     // Audio steps (TTS, music): audioBlob object with { id, available, url }
-    if (step.$type === 'textToSpeech' || step.$type === 'aceStepAudio') {
+    if (step.$type === 'textToSpeech' || step.$type === 'aceStepAudio' || step.$type === 'yuE2') {
       const output = step.output || {};
-      // audioBlob can be an object { id, available, url } or a direct URL string
-      const blob = output.audioBlob;
+      // audioBlob (TTS) or blob (YuE2) can be an object { id, available, url } or a direct URL string
+      const blob = output.audioBlob || output.blob;
       const url = typeof blob === 'object' ? blob?.url :
                   typeof blob === 'string' ? blob :
                   output.blobUrl || output.url;
