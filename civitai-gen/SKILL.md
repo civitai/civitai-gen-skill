@@ -27,7 +27,7 @@ Requires Node.js 18+. Set `CIVITAI_API_KEY` either as an environment variable or
 | `cost` | Dry-run buzz estimation | `whatif=true`, 0 buzz spent |
 | `engines` | List video engines + live status | 11+ engines |
 | `tts` | Text-to-speech | See `docs/tts.md` |
-| `music` | Music/song generation (ACE Step 1.5) | See `docs/music.md` |
+| `music` | Sung songs (YuE2; never ACE Step) | See `docs/music.md` |
 | `transcribe` | Speech-to-text transcription | See `docs/transcription.md` |
 
 ## Quick Examples
@@ -107,7 +107,7 @@ For detailed parameters, read the relevant doc:
 - **Images**: `--prompt`, `--model`, `--resources`, `--aspect`, `--resolution`, `--source-image` (img2img). Run `node generate.mjs --help` for full flag list.
 - **Videos**: `--engine`, `--duration`, `--video-aspect`, `--generate-audio`. Run `node generate.mjs engines` for available engines.
 - **TTS**: Read [`docs/tts.md`](docs/tts.md) — built-in speakers, voice cloning, style instructions.
-- **Music**: Read [`docs/music.md`](docs/music.md) — ACE Step 1.5, lyrics, duration.
+- **Music**: Read [`docs/music.md`](docs/music.md) — always YuE2, never ACE Step. For a launch music video use the walkthrough-video skill's `scripts/song.mjs`.
 - **Transcription**: Read [`docs/transcription.md`](docs/transcription.md) — ASR, timestamps, language hints.
 - **Experiments**: Read `experiment.mjs --help` — wildcards, parameter sweeps, naming.
 
@@ -115,7 +115,7 @@ For detailed parameters, read the relevant doc:
 
 All generation types follow the same pattern:
 
-1. **Build steps** — each job becomes a workflow step with a `$type` (`textToImage`, `videoGen`, `textToSpeech`, `aceStepAudio`, `transcription`)
+1. **Build steps** — each job becomes a workflow step with a `$type` (`textToImage`, `videoGen`, `textToSpeech`, `yuE2`, `transcription`)
 2. **Submit** — POST to orchestration API, get workflow ID
 3. **Poll** — check status until terminal state (succeeded/failed/expired)
 4. **Download** — fetch output media (images, videos, audio files)

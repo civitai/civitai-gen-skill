@@ -10,7 +10,7 @@
 //   cost       Dry-run buzz estimation (whatif)
 //   engines    List available video generation engines
 //   tts        Text-to-speech generation
-//   music      Music/song generation (ACE Step 1.5)
+//   music      Sung song generation (YuE2)
 //   transcribe Speech-to-text transcription (alias: stt)
 //
 // Domain logic split across lib/ modules:
@@ -227,7 +227,7 @@ function detectMediaType(steps) {
   const type = steps[0].$type;
   if (type === 'videoGen') return 'video';
   if (type === 'textToSpeech') return 'tts';
-  if (type === 'aceStepAudio') return 'music';
+  if (type === 'aceStepAudio' || type === 'yuE2') return 'music';
   if (type === 'transcription') return 'transcription';
   return 'image';
 }
@@ -604,7 +604,7 @@ function formatStepStatus(step, index) {
   const imageCount = step.output?.images?.length || 0;
   const hasVideo = step.output?.video?.available;
   const isVideoStep = step.$type === 'videoGen';
-  const isAudioStep = step.$type === 'textToSpeech' || step.$type === 'aceStepAudio';
+  const isAudioStep = step.$type === 'textToSpeech' || step.$type === 'aceStepAudio' || step.$type === 'yuE2';
   const isTranscription = step.$type === 'transcription';
 
   let line = `  [${index}] ${label}: ${status}${progressStr}`;
@@ -657,7 +657,7 @@ async function cmdStatus(opts) {
         totalMedia += 1;
         if (step.output?.video?.available) availableMedia += 1;
       }
-      if (step.$type === 'textToSpeech' || step.$type === 'aceStepAudio') {
+      if (step.$type === 'textToSpeech' || step.$type === 'aceStepAudio' || step.$type === 'yuE2') {
         hasAudio = true;
         totalMedia += 1;
         const output = step.output || {};
@@ -690,7 +690,7 @@ async function cmdStatus(opts) {
           failedJobs: (s.jobs || []).filter((j) => j.status === 'failed').length,
           images: (s.output?.images || []).filter((img) => img.available).length,
           video: s.$type === 'videoGen' ? (s.output?.video?.available ? 1 : 0) : undefined,
-          audio: (s.$type === 'textToSpeech' || s.$type === 'aceStepAudio')
+          audio: (s.$type === 'textToSpeech' || s.$type === 'aceStepAudio' || s.$type === 'yuE2')
             ? ((s.output?.blobUrl || s.output?.url || s.output?.audioBlob) ? 1 : 0) : undefined,
         })),
         summary: { totalJobs, completedJobs, failedJobs, totalMedia, availableMedia },
@@ -941,7 +941,7 @@ async function cmdWait(opts) {
   // Streaming TTS fast-path: submit with no wait, stream blob URL immediately.
   // This gives us audio playback as fast as possible (sub-second first-byte).
   // ---------------------------------------------------------------------------
-  if (isAudio && steps.length === 1) {
+  if (mediaType === 'tts' && steps.length === 1) {
     const outDir = opts.output || './output';
     const absOutDir = resolve(outDir);
     mkdirSync(absOutDir, { recursive: true });
@@ -1385,7 +1385,7 @@ COMMANDS
   cost       Dry-run: estimate buzz cost without spending (what-if)
   engines    List available video generation engines with capabilities
   tts        Text-to-speech synthesis (maps to wait lifecycle)
-  music      Music/song generation via ACE Step 1.5 (maps to wait lifecycle)
+  music      Sung song generation via YuE2 (maps to wait lifecycle). Never ACE Step.
   transcribe Speech-to-text transcription (alias: stt, maps to wait lifecycle)
 ${IMAGE_HELP}${VIDEO_HELP}${AUDIO_HELP}
 STATUS
