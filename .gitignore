@@ -6,3 +6,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 civitai-gen/output/
+civitai-comfy/ledger.jsonl
+civitai-comfy/nodepack-cache.json
